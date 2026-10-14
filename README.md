@@ -21,7 +21,7 @@ It builds and is tested on Windows, Linux and macOS. This is a student project a
 - An order queue: orders are processed in the order they were placed
 - Complaints, newest first, which can be marked resolved
 - Customer list with order counts and amount spent
-- Store stats, including the height of the product tree
+- Store stats: stock, stock value, waiting orders and open complaints
 - Reset a customer's forgotten password
 
 ## DSA and OOP design
@@ -32,7 +32,7 @@ Every data structure lives in [`include/draz/ds/`](include/draz/ds) as a reusabl
   - Finding, adding and removing a product follows one path from the root, instead of scanning the whole list.
   - Deleting a node with two children moves up its in-order successor.
   - An in-order traversal lists products sorted by ID.
-  - Products are saved in ID order, which would build a long chain. So after loading, the tree is rebuilt balanced, middle key first, and the stats screen shows the height.
+  - Products are saved in ID order, which would build a long chain. So after loading, the tree is rebuilt balanced, middle key first.
 - **Stack** (`stack.h`): each customer's cart.
   - "Remove last added" is a pop.
   - Complaints are also kept on a stack, so the newest one is shown first.
@@ -132,9 +132,9 @@ GitHub Actions runs them on Windows, Linux and macOS on every push.
 
 ![Order queue](docs/screenshots/05-order-queue.png)
 
-**Store stats with the product tree height**
+**Products sorted by price**
 
-![Store stats](docs/screenshots/06-stats.png)
+![Sort by price](docs/screenshots/06-sort-by-price.png)
 
 ## Project structure
 

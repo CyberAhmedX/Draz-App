@@ -208,8 +208,6 @@ void CustomerScreen::viewCart() {
         c::table({{"ID", 6, true}, {"Product", 24}, {"Qty", 4, true}, {"Price", 10, true}, {"Amount", 12, true}}, rows);
         billLines(store_.cartBill(account_), 64);
         std::cout << "\n";
-        c::hint("Your cart is a stack: the top row is the item you added last.");
-        std::cout << "\n";
 
         int choice = c::menu({{1, "Remove last added", ""}, {2, "Remove a product", ""}, {0, "Back", ""}});
         if (choice == 0) return back();
@@ -428,7 +426,7 @@ void AdminScreen::deleteProduct() {
 void AdminScreen::searchProducts() {
     top("Products");
     c::section("Search products");
-    int how = c::menu({{1, "By ID", "binary search tree lookup"}, {2, "By name", ""}, {0, "Back", ""}});
+    int how = c::menu({{1, "By ID", ""}, {2, "By name", ""}, {0, "Back", ""}});
     if (how == 0) return back();
     std::cout << "\n";
     if (how == 1) {
@@ -452,8 +450,6 @@ void AdminScreen::orderQueue() {
         c::note("No orders are waiting.");
         return;
     }
-    c::hint("First in, first out: the top order is processed next.");
-    std::cout << "\n";
     std::vector<std::vector<std::string>> rows;
     int position = 1;
     for (const Order& o : pending) {
@@ -529,13 +525,6 @@ void AdminScreen::stats() {
     row("Orders waiting", std::to_string(s.pendingOrders));
     row("Open complaints", std::to_string(s.openComplaints));
     row("Customers", std::to_string(s.customers));
-    std::cout << "\n";
-    int shortest = 0;
-    while ((std::size_t(1) << shortest) <= s.products) ++shortest;  // ceil(log2(n + 1))
-    row("Product tree height", std::to_string(s.treeHeight) + " levels");
-    c::hint("The shortest possible tree for " + plural(static_cast<long long>(s.products), "product") + " has " +
-            std::to_string(shortest) + " levels.");
-    c::hint("A lookup by ID visits at most one product per level.");
 }
 
 void AdminScreen::resetPassword() {
