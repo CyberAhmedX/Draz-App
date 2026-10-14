@@ -1,32 +1,13 @@
-# Prerequisites
-*.d
+# Build output
+build/
+out/
+cmake-build-*/
+CMakeUserPresets.json
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Editors
+.vs/
+.vscode/
+.idea/
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# Accounts, products and orders created when the program runs
+data/
