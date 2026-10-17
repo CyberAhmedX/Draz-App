@@ -1,0 +1,53 @@
+Draz
+====
+
+A shopping app for the terminal, inspired by the Daraz online store.
+Source code: https://github.com/CyberAhmedX/Draz-App
+
+
+TRY IT WITH SAMPLE DATA
+
+  Windows  Double-click try-demo.bat
+  macOS    Double-click try-demo.command (read "First run on macOS" below)
+  Linux    Open a terminal in this folder and run ./try-demo.sh
+
+
+DEMO LOGINS (sample data only)
+
+  Shop          ali, sara, hamza, zainab   Shop-pass-2026
+  Admin panel   admin                      Admin-pass-2026
+
+  Try this: log in to the shop as ali, sort products by price (2), add
+  something to the cart (4) and check out (6). Then log in to the admin
+  panel and open the order queue (6) to see the new order at the back.
+
+
+USE IT WITH YOUR OWN DATA
+
+  Run draz.exe (Windows) or ./draz (macOS and Linux) from this folder.
+  The first run asks you to create the admin account and offers to add
+  12 sample products. Everything is saved in a "data" folder next to it.
+
+
+FIRST RUN ON WINDOWS
+
+  The program is not code-signed, so Windows may show "Windows protected
+  your PC". Click "More info", then "Run anyway".
+
+
+FIRST RUN ON macOS
+
+  The program is not signed by an Apple developer account, so macOS blocks
+  it the first time. To allow it:
+    1. Open Terminal.
+    2. Type   xattr -dr com.apple.quarantine   followed by a space.
+    3. Drag this folder into the Terminal window and press Enter.
+  Then double-click try-demo.command.
+
+
+CHECK YOUR DOWNLOAD
+
+  The release page lists a SHA256SUMS.txt file. Compare it with:
+    Windows  certutil -hashfile <file> SHA256
+    macOS    shasum -a 256 <file>
+    Linux    sha256sum <file>

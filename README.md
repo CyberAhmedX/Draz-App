@@ -6,6 +6,8 @@ It builds and is tested on Windows, Linux and macOS. This is a student project a
 
 ![Shopping cart](docs/screenshots/03-cart.png)
 
+**Try it without compiling anything:** [download the latest release](https://github.com/CyberAhmedX/Draz-App/releases/latest) for Windows, macOS or Linux. It comes with a sample store to explore.
+
 ## Features
 
 **Customers**
@@ -80,6 +82,23 @@ Reviewing the original course project, I found and fixed these problems. Each on
   - a product name with a space
   - entering a duplicate ID once while editing a product
 
+## Download and run
+
+Each [release](https://github.com/CyberAhmedX/Draz-App/releases/latest) has a ready-to-run download for Windows (64-bit), macOS (Apple silicon and Intel) and Linux (x64). Unzip it and start the demo:
+
+- **Windows:** double-click `try-demo.bat`
+- **macOS:** double-click `try-demo.command`
+- **Linux:** run `./try-demo.sh`
+
+The demo opens a sample store with these logins (for the demo only):
+
+- Shop: `ali`, `sara`, `hamza` or `zainab`, password `Shop-pass-2026`
+- Admin panel: `admin`, password `Admin-pass-2026`
+
+To start with your own store, run `draz` (`draz.exe` on Windows) instead. It asks you to create the admin account on the first run.
+
+The builds are not code-signed, so Windows SmartScreen and macOS Gatekeeper warn the first time. `START-HERE.txt` in the download explains how to allow them, and `SHA256SUMS.txt` on the release page lets you check the files. GitHub Actions builds every release from its tagged commit, runs the tests, and starts each download and logs in to the demo store before publishing it.
+
 ## Build and run
 
 You need CMake 3.16 or newer and a C++17 compiler: Visual Studio 2019 or newer, GCC 9 or newer, or Clang 10 or newer. There are no other dependencies.
@@ -146,6 +165,8 @@ GitHub Actions runs them on Windows, Linux and macOS on every push.
   - `console`: the header bar, menus, tables and safe input
   - `app`: the screens
 - `tests/`: the tests
+- `demo/`: the sample store and launchers that ship with each release
+- `.github/workflows/`: the build on all three systems, and the release builds
 
 ## Limitations
 
