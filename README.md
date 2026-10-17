@@ -4,7 +4,9 @@ A shopping app for the terminal, written in C++17, inspired by the Daraz online 
 
 It builds and is tested on Windows, Linux and macOS. This is a student project and is not affiliated with Daraz.
 
-![Shopping cart](docs/screenshots/03-cart.png)
+![A customer sorts products by price, adds a keyboard to the cart and checks out, and the admin sees the new order at the back of the order queue](docs/demo.gif)
+
+*Ali sorts the products by price, adds a keyboard and checks out. The order joins the back of the delivery queue, and the admin sees it there.*
 
 **Try it without compiling anything:** [download the latest release](https://github.com/CyberAhmedX/Draz-App/releases/latest) for Windows, macOS or Linux. It comes with a sample store to explore.
 
@@ -142,6 +144,10 @@ GitHub Actions runs them on Windows, Linux and macOS on every push.
 **Shop menu, with the cart total in the header**
 
 ![Shop menu](docs/screenshots/02-shop-menu.png)
+
+**The cart, with the discount applied**
+
+![Shopping cart](docs/screenshots/03-cart.png)
 
 **An order receipt**
 
