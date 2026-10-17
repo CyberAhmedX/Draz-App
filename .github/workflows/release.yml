@@ -1,0 +1,148 @@
+name: Release
+
+# Builds ready-to-run downloads for Windows, macOS and Linux, checks that each one starts
+# and logs in to the demo data, and publishes them as a GitHub Release named after the
+# version in CMakeLists.txt. On main a release is created once per version; on other
+# branches the downloads are only built and checked.
+on:
+  push:
+    paths:
+      - CMakeLists.txt
+      - src/**
+      - include/**
+      - demo/**
+      - .github/workflows/release.yml
+      - .github/release-notes.md
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      publish: ${{ steps.v.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -n 's/^project(draz VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF" = "refs/heads/main" ] && ! gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: build (${{ matrix.target }})
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows-x64
+            # Link the C++ runtime into draz.exe, so it runs without the Visual C++ Redistributable
+            flags: -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+          - os: ubuntu-22.04
+            target: linux-x64
+            # Built on an older Ubuntu with the C++ runtime linked in, so it runs on most distributions
+            flags: -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc -s"
+          - os: macos-latest
+            target: macos-universal
+            # One binary for both Apple silicon and Intel Macs
+            flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      NAME: draz-v${{ needs.version.outputs.version }}-${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.flags }}
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Package
+        run: |
+          mkdir -p "dist/$NAME"
+          cp -R demo/demo-data demo/START-HERE.txt LICENSE "dist/$NAME/"
+          case "${{ matrix.target }}" in
+            windows-*)
+              cp build/Release/draz.exe demo/try-demo.bat "dist/$NAME/"
+              (cd dist && 7z a -tzip "$NAME.zip" "$NAME" >/dev/null) ;;
+            macos-*)
+              cp build/draz demo/try-demo.command "dist/$NAME/"
+              chmod +x "dist/$NAME/draz" "dist/$NAME/try-demo.command"
+              strip "dist/$NAME/draz"
+              lipo "dist/$NAME/draz" -verify_arch arm64 x86_64
+              lipo -info "dist/$NAME/draz"
+              (cd dist && tar -czf "$NAME.tar.gz" "$NAME") ;;
+            linux-*)
+              cp build/draz demo/try-demo.sh "dist/$NAME/"
+              chmod +x "dist/$NAME/draz" "dist/$NAME/try-demo.sh"
+              ldd "dist/$NAME/draz"
+              (cd dist && tar -czf "$NAME.tar.gz" "$NAME") ;;
+          esac
+          ls -l dist
+
+      - name: Check the packaged program
+        run: |
+          # Unpack the download in a fresh folder and log in to the demo shop as a customer
+          mkdir check && cd check
+          case "${{ matrix.target }}" in
+            windows-*) 7z x "../dist/$NAME.zip" >/dev/null; exe=draz.exe ;;
+            *) tar -xzf "../dist/$NAME.tar.gz"; exe=draz ;;
+          esac
+          cd "$NAME"
+          ./$exe --help
+          printf '1\n1\nali\nShop-pass-2026\n0\n0\n0\n' | ./$exe --data demo-data > session.txt
+          grep -q "ali  ·  cart" session.txt
+          grep -q "Thanks for shopping at Draz." session.txt
+          echo "Logged in to the demo data and exited cleanly"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/${{ env.NAME }}.*
+          if-no-files-found: error
+
+  release:
+    needs: [version, build]
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          gh release create "v$VERSION" * \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Draz $VERSION" \
+            --notes-file ../.github/release-notes.md
